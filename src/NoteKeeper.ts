@@ -1,11 +1,14 @@
+import { getDB } from "./database";
+import { ObjectId } from "mongodb";
+
 type Note = {
-  id: number;
+  _id?: ObjectId;
   content: string;
 };
 
 class NoteKeeper {
-  private notes: Note[] = [];
   private static instance: NoteKeeper;
+  private collectionName: string = "notes";
 
   private constructor() {}
 
@@ -16,22 +19,31 @@ class NoteKeeper {
     return NoteKeeper.instance;
   }
 
-  addNote(content: string): void {
-    const note: Note = {
-      id: this.notes.length + 1,
-      content,
-    };
-    this.notes.push(note);
+  async addNote(content: string): Promise<ObjectId> {
+    const db = getDB();
+    const collection = db.collection<Note>(this.collectionName);
+    const result = await collection.insertOne({ content });
+    return result.insertedId;
   }
 
-  deleteNote(id: number): void {
-    this.notes = this.notes.filter((note) => note.id !== id);
+  async deleteNote(_id: ObjectId): Promise<boolean> {
+    const db = getDB();
+    const collection = db.collection<Note>(this.collectionName);
+    const result = await collection.deleteOne({ _id });
+    return result.deletedCount > 0;
   }
 
-  listNotes(): void {
-    this.notes.forEach((note) => {
-      console.log(`${note.id}: ${note.content}`);
-    });
+  async listNotes(): Promise<Note[]> {
+    const db = getDB();
+    const collection = db.collection<Note>(this.collectionName);
+    return collection.find({}).toArray();
+  }
+
+  async updateNote(_id: ObjectId, content: string): Promise<boolean> {
+    const db = getDB();
+    const collection = db.collection<Note>(this.collectionName);
+    const result = await collection.updateOne({ _id }, { $set: { content } });
+    return result.modifiedCount > 0;
   }
 }
 export default NoteKeeper;
