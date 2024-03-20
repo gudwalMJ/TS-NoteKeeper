@@ -45,5 +45,24 @@ class NoteKeeper {
     const result = await collection.updateOne({ _id }, { $set: { content } });
     return result.modifiedCount > 0;
   }
+
+  async createTextIndex(): Promise<void> {
+    const db = getDB();
+    const collection = db.collection(this.collectionName);
+    await collection.createIndex({ content: "text" });
+    console.log("Text index created on 'content'");
+  }
+
+  async searchNotes(searchQuery: string): Promise<Note[]> {
+    const db = getDB();
+    const collection = db.collection<Note>(this.collectionName);
+
+    // Using MongoDB's $text and $search for full-text search
+    const notes = await collection
+      .find({ $text: { $search: searchQuery } })
+      .toArray();
+
+    return notes;
+  }
 }
 export default NoteKeeper;
