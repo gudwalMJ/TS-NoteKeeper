@@ -1,5 +1,6 @@
 import express, { Request, Response, NextFunction } from "express";
-
+import morgan from "morgan";
+import { NotFoundError, ValidationError } from "./utils/errors";
 import notesRoutes from "./routes/notesRoutes"; // Import your modularized routes
 import dotenv from "dotenv";
 dotenv.config();
@@ -10,6 +11,8 @@ connectDB().then(() => console.log("Connected to database"));
 
 const app = express();
 const port = process.env.PORT || 3000;
+// Use morgan for logging HTTP requests
+app.use(morgan("tiny"));
 
 app.use(express.json()); // Middleware for parsing JSON bodies
 
@@ -23,10 +26,17 @@ app.get("/", (req, res) => {
 
 // Global error handling middleware
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-  console.error(err);
-  const status = (err as any).status || 500; // Cast err to any to access custom properties like status
-  const message = err.message || "Something went wrong.";
-  res.status(status).send({ error: message });
+  console.error(err); // Log the error for debugging
+
+  // Handle custom errors
+  if (err instanceof NotFoundError || err instanceof ValidationError) {
+    return res.status(err.statusCode).json({ message: err.message });
+  }
+
+  // Default to 500 server error for unhandled errors
+  const status = 500;
+  const message = "Something went wrong.";
+  res.status(status).json({ message });
 });
 
 // Start the Express server
