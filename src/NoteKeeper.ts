@@ -57,6 +57,15 @@ class NoteKeeper {
     }
   }
 
+  async getNoteById(_id: ObjectId): Promise<Note | null> {
+    const db = getDB();
+    const collection = db.collection<Note>(this.collectionName);
+
+    // Find the note by _id
+    const note = await collection.findOne({ _id });
+    return note;
+  }
+
   async updateNote(_id: ObjectId, content: string): Promise<boolean> {
     try {
       const db = getDB();
