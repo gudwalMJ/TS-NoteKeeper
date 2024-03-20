@@ -1,4 +1,4 @@
-import { getDB } from "./database";
+import { getDB } from "./db/database";
 import { ObjectId } from "mongodb";
 
 type Note = {

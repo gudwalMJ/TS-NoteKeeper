@@ -2,11 +2,12 @@ import express, { Request, Response, NextFunction } from "express";
 import morgan from "morgan";
 import { NotFoundError, ValidationError } from "./utils/errors";
 import notesRoutes from "./routes/notesRoutes"; // Import your modularized routes
+import authRoutes from "./routes/authRoutes";
 import dotenv from "dotenv";
 dotenv.config();
 
 // Ensure the database connection is established at startup
-import { connectDB } from "./database";
+import { connectDB } from "./db/database";
 connectDB().then(() => console.log("Connected to database"));
 
 const app = express();
@@ -18,6 +19,7 @@ app.use(express.json()); // Middleware for parsing JSON bodies
 
 // Use the modularized notes routes
 app.use("/notes", notesRoutes); // All notes-related routes are now handled in notesRoutes
+app.use("/api/auth", authRoutes);
 
 // Define a simple route for demo
 app.get("/", (req, res) => {

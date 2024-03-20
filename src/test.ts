@@ -1,5 +1,5 @@
 import NoteKeeper from "./NoteKeeper";
-import { connectDB } from "./database";
+import { connectDB } from "./db/database";
 import { ObjectId } from "mongodb";
 
 // This is an immediately invoked function expression (IIFE) that allows us to use async/await at the top level
