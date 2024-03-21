@@ -1,6 +1,10 @@
-import { Request, Response, NextFunction } from "express";
-import { User } from "../models/user";
+import { Request } from "express";
+
+interface AuthenticatedUser {
+  id: string;
+  username: string;
+}
 
 export interface CustomRequest extends Request {
-  user?: User; // Optional user property
+  user?: AuthenticatedUser; // Updated to use AuthenticatedUser
 }
