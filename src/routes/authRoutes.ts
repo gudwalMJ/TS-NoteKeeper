@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { createUser, fetchUserByUsername } from "../db/userOperations";
 import { authenticateToken } from "../middleware/authenticateToken";
+import { CustomRequest } from "../types/custom-request";
 
 const router = express.Router();
 
@@ -45,7 +46,18 @@ router.post("/login", async (req: Request, res: Response) => {
     res.status(401).json({ message: "Invalid username or password" });
   }
 });
-router.get("/protected", authenticateToken, (req, res) => {
-  res.json({ message: "Welcome to the protected route!" });
-});
+router.get(
+  "/protected",
+  authenticateToken,
+  (req: CustomRequest, res: Response) => {
+    console.log("req.user:", req.user); // Log the entire user object
+
+    // Optionally, log specific properties for verification
+    if (req.user) {
+      console.log("User ID:", req.user.id);
+      console.log("Username:", req.user.username);
+    }
+    res.json({ message: "Welcome to the protected route!" });
+  }
+);
 export default router;

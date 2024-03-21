@@ -3,7 +3,6 @@ import jwt from "jsonwebtoken";
 import { User } from "../models/user";
 import { CustomRequest } from "../types/custom-request";
 import dotenv from "dotenv";
-// Call dotenv.config() to load the .env file
 dotenv.config();
 
 export const authenticateToken = (
@@ -14,18 +13,26 @@ export const authenticateToken = (
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
 
-  if (token == null) return res.sendStatus(401); // No token provided
+  if (token == null) {
+    console.log("No token provided");
+    return res.sendStatus(401);
+  }
+
+  console.log("Token received:", token);
 
   jwt.verify(token, process.env.JWT_SECRET!, (err, payload) => {
-    if (err) return res.sendStatus(403); // Token is not valid
-
-    // Ensure the payload matches the expected structure
-    const user = payload as User; // Assuming the JWT payload is structured as User
-    console.log("Decoded user:", user);
-    if (!user || !user.id || !user.username) {
-      return res.sendStatus(403); // Invalid token payload
+    if (err) {
+      console.error("Token verification error:", err.message);
+      return res.sendStatus(403);
     }
 
+    const user = payload as User;
+    if (!user || !user.id || !user.username) {
+      console.log("Invalid token payload:", payload);
+      return res.sendStatus(403);
+    }
+
+    console.log("Token is valid, user payload:", user);
     req.user = user;
     next();
   });
