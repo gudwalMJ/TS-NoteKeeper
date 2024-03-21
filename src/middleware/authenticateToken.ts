@@ -1,8 +1,13 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
+import { User } from "../models/user";
+import { CustomRequest } from "../types/custom-request";
+import dotenv from "dotenv";
+// Call dotenv.config() to load the .env file
+dotenv.config();
 
 export const authenticateToken = (
-  req: Request,
+  req: CustomRequest,
   res: Response,
   next: NextFunction
 ) => {
@@ -16,6 +21,7 @@ export const authenticateToken = (
 
     // Ensure the payload matches the expected structure
     const user = payload as User; // Assuming the JWT payload is structured as User
+    console.log("Decoded user:", user);
     if (!user || !user.id || !user.username) {
       return res.sendStatus(403); // Invalid token payload
     }

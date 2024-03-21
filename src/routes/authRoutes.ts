@@ -31,7 +31,11 @@ router.post("/login", async (req: Request, res: Response) => {
 
   if (user && (await bcrypt.compare(password, user.password))) {
     // User authenticated successfully
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET!, {
+    console.log(process.env.JWT_SECRET); // Should output the secret key
+    if (typeof process.env.JWT_SECRET === "undefined") {
+      throw new Error("JWT_SECRET is not set");
+    }
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
       expiresIn: "1h",
     });
 
